@@ -1,7 +1,7 @@
 # Create an Amsterdam travel experience App with Fivetran & Snowflake
 Scripts for the RAG Demo Amsterdam visit.
 
-This is an overview and mostly used to download the code. Follow the instructions in the Google Doc shared with you. If you have trouble to copy the code download the code from this Github repository. Click [here)(https://github.com/rikthefrog/rag-fivetran/archive/refs/heads/main.zip) to download the code.
+This is an overview and mostly used to download the code. Follow the instructions in the Google Doc shared with you. If you have trouble to copy the code download the code from this Github repository. Click [here](https://github.com/rikthefrog/rag-fivetran/archive/refs/heads/main.zip) to download the code.
 
 ## Build a RAG-based, GenAI Application in 40 minutes
 
