@@ -1,6 +1,6 @@
 #
 # Fivetran Snowflake Cortex Streamlit Lab
-# Build a California Wine Country Travel Assistant Chatbot
+# Build a Amsterdam Travel Assistant Chatbot
 #
 
 import streamlit as st
@@ -44,15 +44,14 @@ def build_layout():
     # Note:  Do not alter the manner in which the objects are laid out.  Streamlit requires this order because of references.
     #
     st.set_page_config(layout="wide")
-    st.title(":wine_glass: California Wine Country Visit Assistant :wine_glass:")
-    st.write("""I'm an interactive California Wine Country Visit Assistant. A bit about me...I'm a RAG-based, Gen AI app **built 
+    st.title(":flag-nl: Amsterdam Visit Assistant :flag-nl:")
+    st.write("""I'm an interactive Amsterdam Visit Assistant. A bit about me...I'm a RAG-based, Gen AI app **built 
       with and powered by Fivetran, Snowflake, Streamlit, and Cortex** and I use a custom, structured dataset!""")
-    st.caption("""Let me help plan your trip to California wine country. Using the dataset you just moved into the Snowflake Data 
-      Cloud with Fivetran, I'll assist you with winery and vineyard information and provide visit recommendations from numerous 
+    st.caption("""Let me help plan your trip to Amsterdam. Using the dataset you just moved into the Snowflake Data 
+      Cloud with Fivetran, I'll assist you with Amsterdam Attraction information and provide visit recommendations from numerous 
       models available in Snowflake Cortex (including Snowflake Arctic). You can even pick the model you want to use or try out 
-      all the models. The dataset includes over **700 wineries and vineyards** across all CA wine-producing regions including the 
-      North Coast, Central Coast, Central Valley, South Coast and various AVAs sub-AVAs. Let's get started!""")
-    user_question_placeholder = "Message your personal CA Wine Country Visit Assistant..."
+      all the models. The dataset includes over **300 Amsterdam Attractions** across Amsterdam. Let's get started!""")
+    user_question_placeholder = "Message your personal Amsterdam Visit Assistant..."
     st.sidebar.selectbox("Select a Snowflake Cortex model:", MODELS, key="model_name")
     st.sidebar.checkbox('Use your Fivetran dataset as context?', key="dataset_context", help="""This turns on RAG where the 
     data replicated by Fivetran and curated in Snowflake will be used to add to the context of the LLM prompt.""")
@@ -100,29 +99,27 @@ def build_prompt (question):
         # Get the RAG records.
         context_cmd = f"""
           with context_cte as
-          (select winery_or_vineyard, winery_information as winery_chunk, vector_cosine_similarity(winery_embedding,
+          (select activity_information as activity_chunk, vector_cosine_similarity(activity_embedding,
                 snowflake.cortex.embed_text_768('e5-base-v2', ?)) as v_sim
-          from vineyard_data_vectors
-          having v_sim > 0
+          from single_string_travel_review_vector
           order by v_sim desc
           limit ?)
-          select winery_or_vineyard, winery_chunk from context_cte 
+          select activity_chunk from context_cte 
           """
+
         chunk_limit = st.session_state.num_retrieved_chunks
         context_df = session.sql(context_cmd, params=[question, chunk_limit]).to_pandas()
         context_len = len(context_df) -1
-        # Add the vineyard names to a list to be displayed later.
-        chunks_used = context_df['WINERY_OR_VINEYARD'].tolist()
-        # Build the additional prompt context using the wine dataset.
+
         rag_context = ""
         for i in range (0, context_len):
-            rag_context += context_df.loc[i, 'WINERY_CHUNK']
+            rag_context += context_df._get_value(i, 'ACTIVITY_CHUNK')
         rag_context = rag_context.replace("'", "''")
         # Construct the prompt.
         new_prompt = f"""
-          Act as a California winery visit expert for visitors to California wine country who want an incredible visit and 
-          tasting experience. You are a personal visit assistant named Snowflake CA Wine Country Visit Assistant. Provide 
-          the most accurate information on California wineries based only on the context provided. Only provide information 
+          Act as an Amsterdam visit expert for visitors to Amsterdam who want an incredible visit 
+          experience. You are a personal visit assistant named Snowflake Amsterdam Visit Assistant. Provide 
+          the most accurate information on Amsterdam Attractions based only on the context provided. Only provide information 
           if there is an exact match below.  Do not go outside the context provided.  
           Context: {rag_context}
           Question: {question} 
@@ -131,9 +128,9 @@ def build_prompt (question):
     else:
         # Construct the generic version of the prompt without RAG to only go against what the LLM was trained.
         new_prompt = f"""
-          Act as a California winery visit expert for visitors to California wine country who want an incredible visit and 
-          tasting experience. You are a personal visit assistant named Snowflake CA Wine Country Visit Assistant. Provide 
-          the most accurate information on California wineries.
+          Act as an Amsterdam visit expert for visitors to Amsterdam who want an incredible visit 
+          experience. You are a personal visit assistant named Snowflake Amsterdam Visit Assistant. Provide 
+          the most accurate information on Amsterdam Attractions.
           Question: {question} 
           Answer: 
           """
@@ -220,7 +217,7 @@ def main():
                          {time_to_first_token:.2f}s to first token + {time_for_remaining_tokens:.2f}s.</span>""")
                     )
                     # Append the new results.
-                    st.session_state.conversation_state.append((f"CA Wine Country Visit Assistant ({st.session_state.model_name}):", response))
+                    st.session_state.conversation_state.append((f"Amsterdam Visit Assistant ({st.session_state.model_name}):", response))
                     st.session_state.conversation_state.append(("You:", question))
             except Exception as e:
                 st.warning(f"An error occurred while processing your question: {e}")
