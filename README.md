@@ -1,4 +1,4 @@
-# rag-fivetran
+# Create an Amsterdam travel experience App with Fivetran & Snowflake
 Scripts for the RAG Demo Amsterdam visit
 
 ## Build a RAG-based, GenAI Application in 40 minutes
